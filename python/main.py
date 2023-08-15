@@ -1,91 +1,110 @@
 from tkinter import *
 from tkinter import ttk
 from operations import *
-# from functions import *
 
-A = 0
-B = 0
-OPERATION = ""
-FIRST_OPERATION = True
-RESULTADO_NA_TELA = False
+STEP = 0
+COUNT = 0
+EQUAL = 0
 
-
-# typing number
-
-
-def input(k):
-    global RESULTADO_NA_TELA, A, B
-    if RESULTADO_NA_TELA:
-        #if A == display_num.get():
-        #B = display_num.get()
-        #else:
-        #    A = display_num.get()
-        dspl_entry.delete(0, END)
-        dspl_entry.insert(0, str(k))
-        RESULTADO_NA_TELA = False
-    else:
-        val = display_num.get()
-        dspl_entry.delete(0, END)
-        dspl_entry.insert(0, int(str(val) + str(k)))
-
-# called when "+ - / *"
-
-
-def store_value(op):
-    global A, B, OPERATION
-    OPERATION = op
-    if FIRST_OPERATION:
-        A = display_num.get()
-        dspl_entry.delete(0, END)
-        FIRST_OPERATION = False
-    else:
-        B = display_num.get()
-        dspl_entry.delete(0, END)
-        get_result(True)
-
-
-def parse_operation():
-    global A, B, OPERATION
-    match OPERATION:
+def parse_math_operation():
+    x = A.get()
+    y = B.get()
+    if last_result.get() != 0:
+        y = last_result.get()
+    match math_operation.get():
         case "*":
-            return multiply(A, B)
+            return multiply(x, y)
         case "/":
-            return divide(A, B)
+            return divide(x, y)
         case "+":
-            return add(A, B)
+            return add(x, y)
         case "-":
-            return subtract(A, B)
+            return subtract(x, y)
 
-
-def get_result(flag):
-    global OPERATION, RESULTADO_NA_TELA, FIRST_OPERATION, A, B
-    print(A, B)
-    result = parse_operation()
-    print(result)
-    A = result
-    dspl_entry.delete(0, END)
-    dspl_entry.insert(0, int(A))
-
-
-def traceee(*args):
-    global A, B
-    print(A, B)
-
+def clear_operator():
+    A.set(0)
+    B.set(0)
+    last_result.set(0)
+    math_operation.set("")
 
 def clear_all():
-    global A, B, OPERATION
-    OPERATION = ""
-    A = B = 0
-    dspl_entry.delete(0, END)
-
+    global STEP
+    STEP = 0
+    A.set(0)
+    B.set(0)
+    last_result.set(0)
+    math_operation.set("")
+    current_display.set("")
+    value_on_display.delete(0, END)
 
 def clear_last():
-    global B
-    B = 0
-    dspl_entry.delete(0, END)
+    global STEP
+    if STEP == 1:
+        STEP = 0
+    B.set(0)
+    value_on_display.delete(0, END)
 
+def input(k):
+    global COUNT
+    COUNT+=1
+    #print(last_result.get())
+    if last_result.get() != 0:
+        value_on_display.delete(0, END)
+        value_on_display.insert(0, str(k))
+    else:
+        val = current_display.get()
+        value_on_display.delete(0, END)
+        value_on_display.insert(0, (str(val) + str(k)))
 
+def store_value(op):
+    global STEP
+    math_operation.set(op)
+    if STEP == 0:
+        A.set(current_display.get())
+        STEP+=1
+        value_on_display.delete(0, END)
+    else:
+        #STEP = 0
+        B.set(current_display.get())
+        get_result("FROM_FUNCTION")
+    print("A ", A.get(),"  B ", B.get())
+    
 
+def get_result(origin):
+    global COUNT, EQUAL
+   
+    if COUNT == 1:
+        print("COUNT",COUNT)
+        B.set(A.get())
+        result = handle_result()
+        return result
+    print("A ", A.get(),"  B ", B.get())
+    if origin == "FROM_FUNCTION":
+        print("FROM_FUNCTION")
+        B.set(current_display.get())
+        return handle_result()
+    #
+    if origin == "FROM_BUTTON":
+        print("FROM_BUTTON")
+       
+        EQUAL+=1
+        B.set(current_display.get())
+        result = handle_result()
+        clear_operator()
+    return result
+
+def handle_result():
+    result = parse_math_operation()
+    last_result.set(result)
+    print("result ", result)
+    value_on_display.delete(0, END)
+    value_on_display.insert(0, result)
+    return result
+
+def close_app():
+    root.destroy()
+
+## tkinter
 root = Tk()
 root.title("Calculator")
 
@@ -94,59 +113,64 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-display_num = StringVar()
-feet = StringVar()
-display_num.trace('w', traceee)
-dspl_entry = ttk.Entry(mainframe, width=20, textvariable=display_num)
-dspl_entry.grid(column=1, row=1, sticky=(W))
+# values
+A = DoubleVar() # first value  - x
+B = DoubleVar() # second value - y
+last_result = DoubleVar()
+math_operation = StringVar()
 
+# display
+current_display = StringVar()
+value_on_display = ttk.Entry(mainframe, width=20, textvariable=current_display)
+value_on_display.grid(column=1, row=1, sticky=W)
 
-debug_A = ttk.Label(mainframe, text="x")
-debug_A.grid(column=5, row=1, sticky=(W))
-debug_A.bind('<ButtonPress-1>',
-             lambda e: debug_A.configure(text='A = %s, B = %s' % (A, B)))
-
-meters = StringVar()
-ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
-
-select_button = ttk.Frame(root, padding="3 3 12 12")
-select_button.grid(column=0, row=3, sticky=(N, W, E, S))
+## input field
+input_field = ttk.Frame(root, padding="3 3 12 12")
+input_field.grid(column=0, row=3, sticky=(N, W, E, S))
 
 button_labels = ['7', '8', '9', '4', '5', '6', '1', '2', '3']
-row = 6
-col = 1
+ROW = 6
+COL = 1
+# number field
 for label in button_labels:
-    ttk.Button(select_button, text=label, command=lambda l=label: input(l)).grid(
-        column=col, row=row, sticky=W)
-    col += 1
-    if col > 3:
-        col = 1
-        row += 1
-
-ttk.Button(select_button, text=0, command=lambda l=0: input(l)
+    ttk.Button(input_field, text=label, command=lambda l=label: input(l)).grid(
+        column=COL, row=ROW, sticky=W)
+    COL += 1
+    if COL > 3:
+        COL = 1
+        ROW += 1
+# 0
+ttk.Button(input_field, text=0, command=lambda l=0: input(l)
            ).grid(column=2, row=9, sticky=W)
 
-operations = ["/", "*", "-", "+"]
 
-for row, op in enumerate(operations, start=5):
-    ttk.Button(select_button, text=op, command=lambda x=op: store_value(x)
+math_operations = ["/", "*", "-", "+"]
+# basic operations
+for row, op in enumerate(math_operations, start=5):
+    ttk.Button(input_field, text=op, command=lambda x=op: store_value(x)
                ).grid(column=4, row=row, sticky=W)
 
-ttk.Button(select_button, text="=", command=lambda x="=": get_result(
-    False)).grid(column=4, row=9, sticky=W)
+# get result
+ttk.Button(input_field, text="=", command=lambda x="=": get_result(
+    "FROM_BUTTON")).grid(column=4, row=9, sticky=W)
 
-ttk.Button(select_button, text="C", command=clear_all).grid(
+
+# reset
+ttk.Button(input_field, text="C", command=clear_all).grid(
     column=4, row=3, sticky=W)
-ttk.Button(select_button, text="CE", command=clear_last).grid(
+ttk.Button(input_field, text="CE", command=clear_last).grid(
     column=3, row=3, sticky=W)
 
 
+# whatever
 ttk.Label(mainframe, text="YAC").grid(column=1, row=2, sticky=E)
 
 for child in mainframe.winfo_children():
     child.grid_configure(padx=5, pady=5)
 
-dspl_entry.focus()
+value_on_display.focus()
 root.bind("<Return>", get_result)
 
 root.mainloop()
+
+
