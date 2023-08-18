@@ -1,5 +1,6 @@
 from operations import *
 
+
 class CalculatorLogic:
     def __init__(self):
         self.A = None
@@ -13,7 +14,6 @@ class CalculatorLogic:
         self.mode = "INTEGER"
 
     def input(self, x):
-        self.track = "INPUT"
         match self.mode:
             case "INTEGER":
                 if self.step == 0:
@@ -21,28 +21,40 @@ class CalculatorLogic:
                         self.A = x
                     else:
                         self.A = int(str(self.A) + str(x))
+                    self.visor = self.A
                 elif self.step == 1:
                     if self.B is None:
                         self.B = x
                     else:
                         self.B = int(str(self.B) + str(x))
+                    self.visor = self.B
+            case "FLOAT":
+                return
+        self.track = "INPUT"
 
     def store_value(self, operator):
         if self.track == "INPUT" and self.step == 1:
-            self.get_result()
+            self.get_result("NONE")
+        elif self.track == "RESULT":
+            self.math_operator = operator
+        elif self.track == "OPERATOR":
+            self.math_operator = operator
+            return
+        self.math_operator = operator
         self.track = "OPERATOR"
         self.step = 1
-        self.math_operator = operator
 
-    def get_result(self):
+    def get_result(self, source="CALL"):
+        if self.track == "OPERATOR":
+            self.B = self.result
         if self.B is None:
             self.B = self.A
-       # if self.track == "RESULT":
-        #    self.B = self.result
-       # self.track = "RESULT"
+        if source != "NONE":
+            self.track = "RESULT"
         self.step = 0
-        self.result = self.parse_math_operation() 
+        self.result = self.parse_math_operation()
         self.A = self.result
+        self.visor = self.result
 
     def parse_math_operation(self):
         match self.math_operator:
@@ -64,6 +76,8 @@ class CalculatorLogic:
         self.result = None
         self.math_operator = None
 
+    def input_float(self):
+        self.mode = "FLOAT"
         """
     def clear_last():
         if STEP == 1:

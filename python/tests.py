@@ -12,7 +12,7 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.input(4)
         calc.input(0)
         calc.input(5)
-        self.assertEqual(calc.A, 31405.0)
+        self.assertEqual(calc.visor, 31405.0)
     
     def test_input_B(self):
         calc = CalculatorLogic()
@@ -23,38 +23,35 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.input(4)
         calc.input(0)
         calc.input(5)
-        self.assertEqual(calc.B, 31405.0)
+        self.assertEqual(calc.visor, 31405.0)
         
-    def test_simple_input_operation(self):
+    def test_single_input_operation(self):
         calc = CalculatorLogic()
         calc.input(3)
         calc.store_value("*")
         calc.input(5)
         calc.get_result()
-        self.assertEqual(calc.result, 15.0)
+        self.assertEqual(calc.visor, 15.0)
     
     def test_double_input_A(self):
-       
         calc = CalculatorLogic()
         calc.input(3)
         calc.input(0)
         calc.store_value("*")
         calc.input(5)
         calc.get_result()
-        self.assertEqual(calc.result, 150.0)
+        self.assertEqual(calc.visor, 150.0)
     
     def test_double_input_B(self):
-    
         calc = CalculatorLogic()
         calc.input(3)
         calc.store_value("*")
         calc.input(5)
         calc.input(0)
         calc.get_result()
-        self.assertEqual(calc.result, 150.0)
+        self.assertEqual(calc.visor, 150.0)
     
     def test_double_input_AB(self):
-
         calc = CalculatorLogic()
         calc.input(3)
         calc.input(0)
@@ -62,10 +59,9 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.input(5)
         calc.input(0)
         calc.get_result()
-        self.assertEqual(calc.result, 1500.0)
+        self.assertEqual(calc.visor, 1500.0)
     
-    def test_chance_operation(self):
-
+    def test_change_operation(self):
         calc = CalculatorLogic()
         calc.input(3)
         calc.store_value("*")
@@ -74,7 +70,7 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.get_result()
         self.assertEqual(calc.result, 8.0)
     
-    def test_carry_operation_via_result(self):
+    def test_carry_via_result(self):
         calc = CalculatorLogic()
         calc.input(3)
         calc.store_value("*")
@@ -83,20 +79,19 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.get_result()
         self.assertEqual(calc.result, 81.0)
 
-    
-    def test_carry_operation_via_operator(self):
+    def test_carry_via_operator(self):
         calc = CalculatorLogic()
-        calc.input(3)
+        calc.input(1)
         calc.store_value("+")
-        calc.input(3)
+        calc.input(9)
         calc.store_value("+")
-        self.assertEqual(calc.result, 6.0)
-        calc.input(3)
-        calc.store_value("+")
-        self.assertEqual(calc.result, 9.0)
-        calc.input(3)
+        self.assertEqual(calc.result, 10.0)
+        calc.input(2)
         calc.store_value("+")
         self.assertEqual(calc.result, 12.0)
+        calc.input(5)
+        calc.store_value("+")
+        self.assertEqual(calc.result, 15.0)
     
     def test_carry_operation_change_operator(self):
         calc = CalculatorLogic()
@@ -107,8 +102,21 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.get_result()
         self.assertEqual(calc.result, 0.0)
 
-
-# Add other test cases if needed
+    def test_output_int(self):
+        calc = CalculatorLogic()
+        calc.input(16)
+        calc.store_value("/")
+        calc.input(2)
+        calc.get_result()
+        self.assertEqual(calc.result, 8)
+    
+    def test_output_float(self):
+        calc = CalculatorLogic()
+        calc.input(5)
+        calc.store_value("/")
+        calc.input(2)
+        calc.get_result()
+        self.assertEqual(calc.result, 2.5)
 
 if __name__ == '__main__':
     unittest.main()
