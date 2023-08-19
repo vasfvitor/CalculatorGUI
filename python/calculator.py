@@ -3,6 +3,9 @@ from operations import *
 
 class CalculatorLogic:
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.A = None
         self.B = None
         self.step = 0
@@ -14,8 +17,12 @@ class CalculatorLogic:
         self.mode = "INTEGER"
 
     def input(self, x):
+        #print(self.A, self.B)
         match self.mode:
             case "INTEGER":
+                if self.track == "RESULT":
+                    self.visor = None
+                    self.A = self.B = None
                 if self.step == 0:
                     if self.A is None:
                         self.A = x
@@ -23,6 +30,9 @@ class CalculatorLogic:
                         self.A = int(str(self.A) + str(x))
                     self.visor = self.A
                 elif self.step == 1:
+                    if self.track == "OPERATOR":
+                        self.visor = 0
+                        self.B = 0
                     if self.B is None:
                         self.B = x
                     else:
@@ -36,7 +46,8 @@ class CalculatorLogic:
         if self.track == "INPUT" and self.step == 1:
             self.get_result("NONE")
         elif self.track == "RESULT":
-            self.math_operator = operator
+            pass
+            # self.math_operator = operator
         elif self.track == "OPERATOR":
             self.math_operator = operator
             return
@@ -68,13 +79,15 @@ class CalculatorLogic:
                 return subtract(self.A, self.B)
 
     def clear_all(self):
-        self.A = None
+        self.reset()
+
+    def clear_last(self):
         self.B = None
-        self.step = 0
+        self.step = 1
         self.count = None
         self.visor = None
         self.result = None
-        self.math_operator = None
+        self.track = "INPUT"
 
     def input_float(self):
         self.mode = "FLOAT"
