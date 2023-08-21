@@ -11,18 +11,15 @@ class GuiCalculator(CalculatorLogic):
 
     def gui_input(self, k):
         self.input(k)
-        vod.delete(0, END)
-        vod.insert(0, self.visor)
+        self.refresh_visor()
 
     def gui_get_result(self, origin):
         self.get_result(origin)
-        vod.delete(0, END)
-        vod.insert(0, self.visor)
+        self.refresh_visor()
 
     def gui_store_value(self, op):
         self.store_value(op)
-        vod.delete(0, END)
-        vod.insert(0, self.visor)
+        self.refresh_visor()
 
     def gui_clear_all(self):
         vod.delete(0, END)
@@ -39,15 +36,27 @@ class GuiCalculator(CalculatorLogic):
             self.gui_input(key)
         elif key in self.math_operators:
             self.gui_store_value(key)
-        # elif key == "Enter":
-        #    self.gui_get_result
+        elif key == "=":
+            self.gui_get_result("KEY")
+        else:
+            self.refresh_visor()
+
+    def gui_negate(self):
+        self.negate()
+        if self.visor is None:
+            return
+        self.refresh_visor()
+
+    def refresh_visor(self):
+        vod.delete(0, END)
+        vod.insert(0, self.visor)
 
 
 calc = GuiCalculator()
 
 # tkinter
 root = Tk()
-root.title("Calculator")
+root.title("PyCalculator")
 
 root.bind("<KeyPress>", calc.on_key_press)
 
@@ -59,7 +68,7 @@ root.rowconfigure(0, weight=1)
 # display
 display_val = StringVar()
 vod = ttk.Entry(
-    mainframe, width=40, justify="right", cursor="man", textvariable=display_val)
+    mainframe, width=40, justify="right", textvariable=display_val)
 vod.grid(column=1, row=1, sticky=W)
 # vod.configure(family="Helvetica", size=36, weight="bold")
 
@@ -78,20 +87,33 @@ for label in button_labels:
     if COL > 3:
         COL = 1
         ROW += 1
+
+
+# BOTTOM ROW
+
+# negate
+ttk.Button(input_field, text="±", command=calc.gui_negate).grid(
+    column=1, row=9, sticky=W)
+
 # 0
 ttk.Button(input_field, text=0, command=lambda l=0: calc.gui_input(l)
            ).grid(column=2, row=9, sticky=W)
 
+# , dot
+ttk.Button(input_field, text=",", command=lambda x=",": input(x)
+           ).grid(column=3, row=9, sticky=W)
+
+# get result
+ttk.Button(input_field, text="=", command=lambda x="=": calc.gui_get_result(
+    "FROM_BUTTON")).grid(column=4, row=9, sticky=W)
+
+##
 
 math_operations = calc.math_operators
 # basic operations
 for row, op in enumerate(math_operations, start=5):
     ttk.Button(input_field, text=op, command=lambda x=op: calc.gui_store_value(x)
                ).grid(column=4, row=row, sticky=W)
-
-# get result
-ttk.Button(input_field, text="=", command=lambda x="=": calc.gui_get_result(
-    "FROM_BUTTON")).grid(column=4, row=9, sticky=W)
 
 
 # reset

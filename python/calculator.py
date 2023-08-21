@@ -17,18 +17,21 @@ class CalculatorLogic:
         self.mode = "INTEGER"
 
     def input(self, x):
-        #print(self.A, self.B)
+        # print(self.A, self.B)
+        if x == ",":
+            self.MODE = "FLOAT"
+            print(x)
         match self.mode:
             case "INTEGER":
                 if self.track == "RESULT":
-                    self.visor = None
-                    self.A = self.B = None
+                    self.visor = self.A = self.B = None
                 if self.step == 0:
                     if self.A is None:
                         self.A = x
                     else:
                         self.A = int(str(self.A) + str(x))
                     self.visor = self.A
+
                 elif self.step == 1:
                     if self.track == "OPERATOR":
                         self.visor = 0
@@ -37,9 +40,14 @@ class CalculatorLogic:
                         self.B = x
                     else:
                         self.B = int(str(self.B) + str(x))
+
                     self.visor = self.B
+
             case "FLOAT":
                 return
+            #
+        #
+        print(self.visor)
         self.track = "INPUT"
 
     def store_value(self, operator):
@@ -91,6 +99,14 @@ class CalculatorLogic:
 
     def input_float(self):
         self.mode = "FLOAT"
+
+    def negate(self):
+        if self.A is not None or self.B is not None:
+            if self.step == 0:
+                self.A = self.A * -1
+            else:
+                self.B = self.B * -1
+            self.visor = self.visor * -1
         """
     def clear_last():
         if STEP == 1:

@@ -154,6 +154,21 @@ class TestCalculatorFunctions(unittest.TestCase):
         calc.get_result()
         self.assertEqual(calc.visor, 9)
 
+    def test_negate(self):
+        calc = CalculatorLogic()
+        calc.input(3)
+        calc.negate()
+        self.assertEqual(calc.visor, -3)
+    
+    def test_negate_and_sum(self):
+        calc = CalculatorLogic()
+        calc.input(3)
+        calc.negate()
+        calc.store_value("+")
+        calc.input(3)
+        calc.get_result()
+        self.assertEqual(calc.visor, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
